@@ -44,30 +44,28 @@ io.on("connection", (socket) => {
       socket.join(roomId);
 
       // inform client on room created
-      io.to(roomId).emit('createRoomSuccess',room);
-
+      io.to(roomId).emit("createRoomSuccess", room);
     } catch (e) {
       console.log(e);
     }
   });
 
-  socket.on("joinRoom",async ({nickName,roomId})=> {
-    try{
-      
+  socket.on("joinRoom", async ({ nickName, roomId }) => {
+    try {
       // check if room id is valid
-      if(!roomId.match(/^[0-9a-fA-F]{24}$/)){
-        socket.emit('errorOccurred',"Please enter a valid room id.");
+      if (!roomId.match(/^[0-9a-fA-F]{24}$/)) {
+        socket.emit("errorOccurred", "Please enter a valid room id.");
         return;
       }
 
       let room = await Room.findById(roomId);
-      
+
       // check if room is available for joining
-      if(room.isJoin){
+      if (room.isJoin) {
         let player = {
           nickName,
           socketId: socket.id,
-          playerType: 'O',
+          playerType: "O",
         };
         socket.join(roomId);
 
@@ -76,14 +74,40 @@ io.on("connection", (socket) => {
         room.isJoin = false;
         room = await room.save();
 
-        io.emit('joinRoomSuccess',room);
-        io.emit('playersUpdated',room.players);
-        io.emit('updateRoom',room);
-      }else{
-        socket.emit('errorOccurred',"Game in progress.Please try again later");
+        io.emit("joinRoomSuccess", room);
+        io.emit("playersUpdated", room.players);
+        io.emit("updateRoom", room);
+      } else {
+        socket.emit("errorOccurred", "Game in progress.Please try again later");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  socket.on("boardTap", async ({ index, roomId }) => {
+    try {
+      let room = await Room.findById(roomId);
+
+      let choice = room.turn.playerType; // whether x or o
+      if (room.turnIndex == 0) {
+        // change to player 2
+        room.turn = room.players[1];
+        room.turnIndex = 1;
+      } else {
+        // change to player 1
+        room.turn = players[0];
+        room.turnIndex = 0;
       }
 
-    }catch(e){
+      room = await room.save();
+
+      io.to(roomId).emit("boardTapped", {
+        index,
+        choice,
+        room,
+      });
+    } catch (e) {
       console.log(e);
     }
   });
