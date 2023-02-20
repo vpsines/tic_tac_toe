@@ -21,6 +21,8 @@ class RoomProvider extends ChangeNotifier {
 
   List<String> get boardElements => _boardElements;
 
+  int get filledBoxes => _filledBoxes; 
+
   void updateRoomData(Map<String, dynamic> data) {
     _roomData = data;
     notifyListeners();
@@ -39,6 +41,12 @@ class RoomProvider extends ChangeNotifier {
   void updateBoardElements(int index, String choice) {
     _boardElements[index] = choice;
     _filledBoxes += 1;
+    notifyListeners();
+  }
+
+  void resetBoardElements(){
+    _boardElements = List<String>.filled(9, '');
+    _filledBoxes = 0;
     notifyListeners();
   }
 }
