@@ -46,16 +46,19 @@ class _TicTacToeBoardState extends State<TicTacToeBoard> {
                   border: Border.all(color: Colors.white24),
                 ),
                 child: Center(
-                  child: Text(
-                    roomProvider.boardElements[index],
-                    style:
-                        TextStyle(color: Colors.white, fontSize: 100, shadows: [
-                      Shadow(
-                          blurRadius: 40,
-                          color: roomProvider.boardElements[index] == 'O'
-                              ? Colors.red
-                              : Colors.blue)
-                    ]),
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 200),
+                    child: Text(
+                      roomProvider.boardElements[index],
+                      style:
+                          TextStyle(color: Colors.white, fontSize: 100, shadows: [
+                        Shadow(
+                            blurRadius: 40,
+                            color: roomProvider.boardElements[index] == 'O'
+                                ? Colors.red
+                                : Colors.blue)
+                      ]),
+                    ),
                   ),
                 ),
               ),
