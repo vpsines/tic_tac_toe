@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:tic_tac_toe/resources/game_methods.dart';
 import 'package:tic_tac_toe/resources/socket_client.dart';
 import 'package:tic_tac_toe/screens/game_screen.dart';
 import 'package:tic_tac_toe/providers/room_provider.dart';
+import 'package:tic_tac_toe/screens/main_screen.dart';
 import 'package:tic_tac_toe/utils/util.dart';
 
 class SocketMethods {
@@ -65,11 +67,34 @@ class SocketMethods {
     });
   }
 
-  void boardTapListener(BuildContext context){
-    _socketClient!.on('boardTapped', (data){
-      RoomProvider roomProvider = Provider.of<RoomProvider>(context, listen: false);
+  void boardTapListener(BuildContext context) {
+    _socketClient!.on('boardTapped', (data) {
+      RoomProvider roomProvider =
+          Provider.of<RoomProvider>(context, listen: false);
       roomProvider.updateBoardElements(data['index'], data['choice']);
       roomProvider.updateRoomData(data['room']);
+
+      // check if any player won
+      GameMethods().checkWinner(context, socketClient);
+    });
+  }
+
+  void pointIncreaseListener(BuildContext context) {
+    socketClient.on('pointIncrease', (player) {
+      RoomProvider roomProvider =
+          Provider.of<RoomProvider>(context, listen: false);
+      if (roomProvider.player1.socketId == player['socketId']) {
+        roomProvider.updatePlayer1(player);
+      } else {
+        roomProvider.updatePlayer2(player);
+      }
+    });
+  }
+
+  void endGameListener(BuildContext context){
+    socketClient.on('endGame', (player){
+      showGameDialog(context, '${player['nickName']} won.');
+      Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
     });
   }
 }
