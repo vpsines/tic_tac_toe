@@ -23,6 +23,8 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     socketMethods.updateRoomListener(context);
     socketMethods.playerStateUpdateListener(context);
+    socketMethods.pointIncreaseListener(context);
+    socketMethods.endGameListener(context);
   }
 
   @override
@@ -32,14 +34,15 @@ class _GameScreenState extends State<GameScreen> {
         return Scaffold(
           body: (roomProvider.roomData['isJoin'])
               ? const WaitingLobby()
-              : SafeArea(child: 
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
-                    ScoreBoard(),
-                    TicTacToeBoard()
-                ],
-              )),
+              : SafeArea(
+                  child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const ScoreBoard(),
+                    const TicTacToeBoard(),
+                    Text('${roomProvider.roomData['turn']['nickName']}\'s turn')
+                  ],
+                )),
         );
       },
     );
